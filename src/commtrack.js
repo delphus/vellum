@@ -92,8 +92,7 @@ define([
                 title: gettext("Logic"),
                 text: gettext("Use logic to control when questions are asked and what answers are valid. " +
                     "You can add logic to display a question based on a previous answer, to make " +
-                    "the question required or ensure the answer is in a valid range."),
-                link: "https://confluence.dimagi.com/display/commcarepublic/Common+Logic+and+Calculations"
+                    "the question required or ensure the answer is in a valid range.")
             },
             properties: [
                 'relevantAttr',

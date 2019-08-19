@@ -2193,8 +2193,7 @@ define([
                             "appears in the application. This text will not " +
                             "appear in data exports."),
                         {displaytext: "<strong>" + gettext("Display Text") + "</strong>"}
-                    ) + "</p> ",
-                    link: "https://confluence.dimagi.com/display/commcarepublic/Form+Builder"
+                    ) + "</p> "
                 }
             },
             {
@@ -2218,8 +2217,7 @@ define([
                     title: gettext("Logic"),
                     text: gettext("Use logic to control when questions are asked and what answers are valid. " +
                         "You can add logic to display a question based on a previous answer, to make " +
-                        "the question required or ensure the answer is in a valid range."),
-                    link: "https://confluence.dimagi.com/display/commcarepublic/Common+Logic+and+Calculations"
+                        "the question required or ensure the answer is in a valid range.")
                 }
             },
             {
@@ -2229,8 +2227,7 @@ define([
                 isCollapsed: true,
                 help: {
                     title: gettext("Media"),
-                    text: gettext("This will allow you to add images, audio or video media to a question, or other custom content."),
-                    link: "https://confluence.dimagi.com/display/commcarepublic/Multimedia+in+CommCare"
+                    text: gettext("This will allow you to add images, audio or video media to a question, or other custom content.")
                 }
             },
             {
@@ -2242,8 +2239,7 @@ define([
                 help: {
                     title: gettext("Advanced"),
                     text: gettext("These are advanced settings and are not needed for most applications.  " +
-                        "Please only change these if you have a specific need!"),
-                    link: "https://confluence.dimagi.com/display/commcarepublic/Application+Building"
+                        "Please only change these if you have a specific need!")
                 }
             }
         ];

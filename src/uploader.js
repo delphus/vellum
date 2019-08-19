@@ -118,16 +118,11 @@ define([
             return ref.linkedObj.url;
         };
 
-        ref.updateController = function (widget) {
+        ref.updateController = function (widget, objectMap) {
             // see note about poor man's promise below
             var uploadController = uploadControls[ref.mediaType].value;
             uploadController.resetUploader();
             uploadController.currentReference = ref;
-            uploadController.updateMediaPath = function () {
-                var params = uploadController.uploadParams;
-                params.path = widget.getRandomizedMediaPath(params.path);
-                widget.updateReference(params.path);
-            };
             uploadController.uploadParams = {
                 path: ref.path,
                 media_type : SLUG_TO_CLASS[ref.mediaType],
@@ -143,22 +138,6 @@ define([
     var addUploaderToWidget = function (widget, objectMap, uploadControls) {
         widget.mediaRef = multimediaReference(
             widget.form, objectMap, uploadControls);
-
-        if (!widget.getBaseMediaPath) {
-            throw new Error("required method not found: widget.getBaseMediaPath()");
-        }
-
-        widget.getRandomizedMediaPath = function (oldPath) {
-            // The file type extension of the path returned here is replaced by
-            // the extension of the uploaded file, so it is not strictly
-            // necessary to pass in oldPath. However, the returned path must
-            // have an extension because of the way
-            // BaseHQMediaUploadController.startUpload() replaces it.
-            var extension = EXT.exec(oldPath)[0].toLowerCase() || ".xyz",
-                // generates 1 or 2 duplicates in 100K samples (probably random enough)
-                rand6 = Math.random().toString(36).slice(2, 8);
-            return widget.getBaseMediaPath() + "-" + rand6 + extension;
-        };
 
         var getValue = widget.getItextValue || widget.getValue,
             $input = widget.getControl(),
@@ -203,11 +182,11 @@ define([
             $input.on("change keyup", function () {
                 widget.updateMultimediaBlockUI(objectMap);
             });
+
+            $controlBlock.append($uploadContainer);
             $uiElem.on('mediaUploadComplete', function (event, data) {
                 widget.handleUploadComplete(event, data, objectMap);
             });
-
-            $controlBlock.append($uploadContainer);
 
             // reapply bindings because we removed the input from the UI
             $input.on("change keyup", widget.updateValue);
@@ -216,6 +195,7 @@ define([
         };
 
         widget.handleUploadComplete = function (event, data, objectMap) {
+            // data: { ref: { path: string } }
             if (data.ref && data.ref.path) {
                 if (getValue() !== data.ref.path) {
                     widget.getControl().val(data.ref.path);
@@ -274,7 +254,7 @@ define([
             mediaType: SUPPORTED_EXTENSIONS[widget.form][0].description
         }));
         $uploadBtn.click(function () {
-            widget.mediaRef.updateController(widget);
+            widget.mediaRef.updateController(widget, objectMap);
         });
         return $uploadBtn;
     };
@@ -304,43 +284,61 @@ define([
                 return;
             }
 
-            this.data.uploader.deferredInit = function () {
+            this.data.uploader.deferredInit = function (widget) {
                 this.data.uploader.uploadControls = {
                     'image': this.initUploadController({
                         uploaderSlug: 'fd_hqimage',
                         mediaType: 'image',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.image,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     }),
                     'audio': this.initUploadController({
                         uploaderSlug: 'fd_hqaudio',
                         mediaType: 'audio',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.audio,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     }),
                     'video': this.initUploadController({
                         uploaderSlug: 'fd_hqvideo',
                         mediaType: 'video',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.video,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     }),
                     'video-inline': this.initUploadController({
                         uploaderSlug: 'fd_hqInlineVideo',
                         mediaType: 'video-inline',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.video,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     }),
                     'expanded-audio': this.initUploadController({
                         uploaderSlug: 'fd_hqExpandedAudio',
                         mediaType: 'expanded-audio',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.audio,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     }),
                     'text': this.initUploadController({
                         uploaderSlug: 'fd_hqtext',
                         mediaType: 'text',
                         sessionid: sessionid,
                         uploadUrl: uploadUrls.text,
+                        objectMap: opts.objectMap,
+                        onUpload: opts.onUpload,
+                        widget: widget
                     })
                 };
             };
@@ -354,7 +352,7 @@ define([
             var deferredInit = this.data.uploader.deferredInit;
             if (deferredInit !== null) {
                 this.data.uploader.deferredInit = null;
-                deferredInit.apply(this);
+                deferredInit.apply(this, [widget]);
             }
 
             addUploaderToWidget(widget, 
@@ -398,12 +396,15 @@ define([
                         sessionid: options.sessionid
                     }
                 );
-                var super_startUpload = uploadController.value.startUpload;
-                uploadController.value.startUpload = function (event) {
-                    uploadController.value.updateMediaPath();
-                    return super_startUpload.call(this, event);
-                };
                 uploadController.value.init();
+                // Override the uploader logic to call out to Delphus's in the options.
+                uploadController.value.startUpload = function (event) {
+                    console.log(uploadController, event);
+                    // This is how to get a file to upload out of YUI, apparently.
+                    options.onUpload(uploadController.value.filesInQueueUI[0]._state.data.file.value, (data) => {
+                        options.widget.handleUploadComplete(event, data, options.objectMap);
+                    });
+                };
             });
             return uploadController;
         },

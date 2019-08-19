@@ -2177,72 +2177,7 @@ define([
     };
 
     fn.send = function (formText, saveType) {
-        var CryptoJS = require('CryptoJS'),
-            _this = this,
-            opts = this.opts().core,
-            checkForConflict = false,
-            patch, data;
-        saveType = saveType || opts.saveType;
-
-        var url = saveType === 'patch' ?  opts.patchUrl : opts.saveUrl;
-
-        showPageSpinner();
-
-        if (saveType === 'patch') {
-            checkForConflict = true;
-            var diff_match_patch = require('diff-match-patch'),
-                dmp = new diff_match_patch();
-            patch = dmp.patch_toText(
-                dmp.patch_make(this.data.core.lastSavedXForm, formText)
-            );
-            // abort if diff too long and send full instead
-            if (patch.length > formText.length && opts.saveUrl) {
-                saveType = 'full';
-                url = opts.saveUrl;
-            }
-        }
-
-        data = saveType === 'patch' ? {patch: patch} : {xform: formText};
-        data.case_references = JSON.stringify(this.data.core.form._logicManager.caseReferences());
-        if (checkForConflict) {
-            data.sha1 = CryptoJS.SHA1(this.data.core.lastSavedXForm).toString();
-        }
-
-        this.data.core.saveButton.ajax({
-            type: "POST",
-            url: url,
-            data: data,
-            dataType: 'json',
-            error: function() {
-                hidePageSpinner();
-            },
-            success: function (data) {
-                if (checkForConflict) {
-                    if (data.status === 'conflict') {
-                        // reset save button to unsaved state
-                        _this.data.core.saveButton.fire("change");
-                        var force_full = _this.opts()
-                            .features.full_save_on_missing_conflict_xform;
-                        if (_.isUndefined(data.xform) && force_full) {
-                            // unconditionally overwrite if no xform to compare
-                            // this codepath is for standalone/test mode only
-                            _this.send(formText, 'full');
-                        } else {
-                            hidePageSpinner();
-                            _this.showOverwriteWarning(_this.send.bind(_this),
-                                                       formText, data.xform);
-                        }
-                        return;
-                    } else if (CryptoJS.SHA1(formText).toString() !== data.sha1) {
-                        debug.error("sha1's didn't match");
-                        _this.send(formText, 'full');
-                    }
-                }
-                hidePageSpinner();
-                _this.opts().core.onFormSave(data);
-                _this.data.core.lastSavedXForm = formText;
-            }
-        });
+        this.opts().onSave(formText);
     };
 
     fn.getSections = function (mug) {

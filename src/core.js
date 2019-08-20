@@ -2251,6 +2251,7 @@ define([
             "calculateAttr",
             "nodeID",
             "requiredAttr",
+            "encryptedAttr",
             "readOnlyControl",
             "itemsetData",
             "imageSize",

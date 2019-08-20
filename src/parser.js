@@ -683,6 +683,7 @@ define([
             constraintAttr: parseVellumAttrs(form, el, 'constraint'),
             constraintMsgAttr: lookForNamespaced(el, "constraintMsg"),
             requiredAttr: parseBoolAttributeValue(required),
+            encryptedAttr: parseBoolAttributeValue(el.popAttr("encrypted")),
             requiredCondition: (parseVellumAttrs(form, el, 'requiredCondition') ||
                                 ((required !== 'true()' && required !== 'false()') ? required : undefined)),
         };

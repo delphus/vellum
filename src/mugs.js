@@ -15,6 +15,7 @@
  * Logic Properties
  *  calculateAttr: Hidden questions only. The calculation that generates the question's value.
  *  requiredAttr: Boolean. Whether or not user must enter a value for the question.
+ *  encryptedAttr: Boolean. Whether or not this question's value should be encrypted.
  *  relevantAttr: Boolean expression that determines whether or not to display a question to the end user.
  *  constraintAttr: Boolean expression that, if false, will prevent the user from proceeding past the question.
  *  repeat_count: Repeat groups only. An integer expression that determines the number of groups to generate.
@@ -985,6 +986,12 @@ define([
                     return baseSpecs.databind.requiredCondition.validationFunc(mug);
                 }
             },
+            encryptedAttr: {
+                visibility: 'visible',
+                presence: 'optional',
+                lstring: gettext("Encrypted"),
+                widget: widgets.checkbox
+            },
             requiredCondition: {
                 visibility: 'requiredAttr',
                 presence: 'optional',
@@ -1236,6 +1243,7 @@ define([
                 relevant: mug.p.relevantAttr,
                 required: required,
                 requiredCondition: mug.p.requiredCondition,
+                "encrypted": util.createXPathBoolFromJS(mug.p.encryptedAttr),
                 calculate: mug.p.calculateAttr,
             };
             _.each(mug.p.rawBindAttributes, function (value, key) {

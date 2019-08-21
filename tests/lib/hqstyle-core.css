@@ -1395,11 +1395,11 @@ html {
 }
 
 body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: Roboto, sans-serif;
     font-size: 12px;
     line-height: 1.42857143;
     color: #181715;
-    background-color: #ffffff
+    background-color: #ffffff;
 }
 
 input,
@@ -3918,21 +3918,21 @@ fieldset[disabled] .btn-success.focus {
 
 .btn-info {
     color: #ffffff;
-    background-color: #00bdc5;
-    border-color: #00a5ac
+    background-color: #096dd9;
+    border-color: #096dd9
 }
 
 .btn-info:focus,
 .btn-info.focus {
     color: #ffffff;
-    background-color: #008c92;
-    border-color: #002a2c
+    background-color: #40a9ff;
+    border-color: #40a9ff
 }
 
 .btn-info:hover {
     color: #ffffff;
-    background-color: #008c92;
-    border-color: #006a6e
+    background-color: #40a9ff;
+    border-color: #40a9ff
 }
 
 .btn-info:active,

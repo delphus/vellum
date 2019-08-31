@@ -2411,7 +2411,6 @@ define([
         onReady: function () {},
         onFormSave: function (data) {},
         bindBeforeUnload: function (handler) {
-            $(window).on('beforeunload', handler);
         }
     }, fn);
 });
